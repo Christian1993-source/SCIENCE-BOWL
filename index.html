@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Science Bowl Profesional</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="scene-bg" aria-hidden="true"></div>
+    <div class="scene-glow" aria-hidden="true"></div>
+    <div class="scene-particles" aria-hidden="true"></div>
+
+    <div class="app" id="app" data-phase="waiting_start_game">
+      <header class="topbar">
+        <div class="brand">
+          <p class="brand-kicker">SCIENCE BOWL</p>
+          <h1>Professional Arena</h1>
+        </div>
+
+        <div class="master-controls" aria-label="Master controls">
+          <button id="reset-game-btn" class="ctrl-btn danger" type="button">Reset Game</button>
+          <button id="pause-btn" class="ctrl-btn" type="button">Pause</button>
+          <button id="mute-btn" class="ctrl-btn" type="button">Mute</button>
+          <button id="test-sound-btn" class="ctrl-btn" type="button">Test Sound</button>
+          <label class="volume-wrap" for="volume-slider">
+            <span>Volume</span>
+            <input id="volume-slider" type="range" min="0" max="100" value="100" />
+          </label>
+          <button id="fullscreen-btn" class="ctrl-btn" type="button">Fullscreen</button>
+          <button id="settings-btn" class="ctrl-btn" type="button">Settings</button>
+        </div>
+      </header>
+
+      <main class="arena">
+        <section class="hud-row">
+          <article class="score-box left">
+            <p class="label">LEFT SCORE</p>
+            <p id="left-score" class="value">0</p>
+          </article>
+
+          <article class="center-box">
+            <p class="label">PHASE</p>
+            <p id="phase-label" class="value small">WAITING_START_GAME</p>
+          </article>
+
+          <article class="score-box right">
+            <p class="label">RIGHT SCORE</p>
+            <p id="right-score" class="value">0</p>
+          </article>
+        </section>
+
+        <section class="question-card" id="question-card">
+          <div class="question-head">
+            <p id="question-counter">Question 0</p>
+            <p id="round-counter">Round 0</p>
+          </div>
+          <h2 id="question-text">Press START GAME to begin.</h2>
+          <ul id="question-choices" class="question-choices" hidden></ul>
+        </section>
+
+        <section class="battle-zone">
+          <button id="buzz-left" class="buzzer left" type="button">LEFT BUZZER</button>
+
+          <div class="center-stack">
+            <p class="timer-label">TIMER</p>
+            <p id="timer-display" class="timer">--</p>
+            <p id="status-line" class="status-line">Master controls the flow.</p>
+
+            <section id="judge-panel" class="judge-panel" hidden>
+              <h3 id="judge-title">Judge current answer</h3>
+              <div class="judge-actions">
+                <button id="judge-correct" class="judge-btn correct" type="button">Correct</button>
+                <button id="judge-wrong" class="judge-btn wrong" type="button">Wrong</button>
+                <button id="judge-timeout" class="judge-btn timeout" type="button">Timeout</button>
+              </div>
+            </section>
+          </div>
+
+          <button id="buzz-right" class="buzzer right" type="button">RIGHT BUZZER</button>
+        </section>
+      </main>
+
+      <div id="buzz-flash" class="buzz-flash" hidden>LEFT BUZZED!</div>
+
+      <section id="start-overlay" class="overlay active" aria-live="polite">
+        <div class="overlay-card">
+          <p class="overlay-kicker">MASTER MODE</p>
+          <h2>SCIENCE BOWL PROFESSIONAL</h2>
+          <p>Review the flow and launch when the class is ready.</p>
+          <ul class="start-rules">
+            <li>First buzz gets answer control.</li>
+            <li>20s buzz, 10s answer, 10s steal.</li>
+            <li>Teacher starts every new round.</li>
+          </ul>
+          <div class="start-actions">
+            <button id="open-settings-start-btn" class="overlay-btn start-settings" type="button">OPEN SETTINGS</button>
+            <button id="start-game-btn" class="overlay-btn start-primary" type="button">BEGIN TOURNAMENT</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="result-overlay" class="overlay result" aria-live="assertive" hidden>
+        <div class="overlay-card result-card">
+          <h2 id="result-message">LEFT WINS!</h2>
+          <p id="result-subtext">Round complete.</p>
+        </div>
+      </section>
+
+      <section id="waiting-overlay" class="overlay waiting" aria-live="polite" hidden>
+        <div class="overlay-card waiting-card">
+          <p class="overlay-kicker waiting-kicker">ROUND COMPLETE</p>
+          <h2 id="waiting-title">WAITING FOR NEXT CHALLENGER</h2>
+          <p id="waiting-summary">LEFT WINS! Round complete.</p>
+          <p id="waiting-hint">Press START to continue</p>
+          <button id="start-next-round-btn" class="overlay-btn next" type="button">START NEXT ROUND</button>
+        </div>
+      </section>
+
+      <section id="pause-overlay" class="overlay blocking" aria-live="assertive" hidden>
+        <div class="overlay-card">
+          <p class="overlay-kicker">MASTER CONTROL</p>
+          <h2>GAME PAUSED</h2>
+          <p>Timer is stopped. Buzzers are locked.</p>
+          <button id="resume-btn" class="overlay-btn next" type="button">RESUME GAME</button>
+        </div>
+      </section>
+    </div>
+
+    <aside id="settings-panel" class="settings-panel" hidden>
+      <div class="settings-header">
+        <h2>Master Settings</h2>
+        <button id="close-settings-btn" class="ctrl-btn" type="button">Close</button>
+      </div>
+
+      <section class="settings-section">
+        <h3>Official Timers</h3>
+        <div class="timer-settings-grid">
+          <label for="cfg-buzz-timer">Phase 1 (Buzz)</label>
+          <div class="timer-input-wrap">
+            <input id="cfg-buzz-timer" type="number" min="1" max="120" step="1" value="20" />
+            <span>s</span>
+          </div>
+
+          <label for="cfg-answer-timer">Phase 2 (Answer)</label>
+          <div class="timer-input-wrap">
+            <input id="cfg-answer-timer" type="number" min="1" max="120" step="1" value="10" />
+            <span>s</span>
+          </div>
+
+          <label for="cfg-steal-timer">Steal</label>
+          <div class="timer-input-wrap">
+            <input id="cfg-steal-timer" type="number" min="1" max="120" step="1" value="10" />
+            <span>s</span>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button id="apply-timers-btn" class="ctrl-btn" type="button">Apply Timers</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Audio Mix</h3>
+        <div class="audio-settings-grid">
+          <label for="cfg-master-volume">Master Volume</label>
+          <div class="timer-input-wrap">
+            <input id="cfg-master-volume" type="range" min="0" max="1" step="0.01" value="1" />
+            <span id="cfg-master-volume-value">1.00</span>
+          </div>
+          <label for="cfg-music-toggle">Music</label>
+          <label class="toggle-pill">
+            <input id="cfg-music-toggle" type="checkbox" checked />
+            <span>Enabled</span>
+          </label>
+          <label for="cfg-sfx-toggle">SFX</label>
+          <label class="toggle-pill">
+            <input id="cfg-sfx-toggle" type="checkbox" checked />
+            <span>Enabled</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Question Bank</h3>
+        <p id="bank-count">Questions loaded: 0</p>
+        <p class="settings-help">Saving replaces the full bank. Use CLEAR BANK for a total reset to 0 questions.</p>
+        <textarea id="bank-input" rows="9" placeholder="What is H2O? | water"></textarea>
+        <div class="settings-actions">
+          <button id="save-bank-btn" class="ctrl-btn" type="button">Save Bank</button>
+          <button id="reset-bank-btn" class="ctrl-btn danger" type="button">Clear Bank</button>
+        </div>
+        <p id="settings-msg" class="settings-msg">Ready.</p>
+      </section>
+    </aside>
+
+    <script src="app.js"></script>
+  </body>
+</html>
